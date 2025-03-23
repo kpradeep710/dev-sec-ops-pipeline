@@ -1,0 +1,33 @@
+apiVersion: apps/v1`:wq
+kind: Deployment
+metadata:
+  name: devsecops-deploy
+  labels:
+    app: dev-sec-ops
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dev-sec-ops
+  template:
+    metadata:
+      labels:
+        app: dev-sec-ops
+    spec:
+      containers:
+        - name: nani-container
+          image: apache2
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: devsecops-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: dev-sec-ops
+  ports:
+    - port: 80
+      targetPort: 80
