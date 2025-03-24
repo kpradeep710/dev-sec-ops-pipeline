@@ -6,7 +6,7 @@ env:
     SONAR_TOKEN: "squ_be3aeff8bfc16fe4c236c881557b775b28b2055a"
     AWS_REGION: "ap-south-1"
     REPOSITORY_URI: "970547349158.dkr.ecr.ap-south-1.amazonaws.com/dev-sec-ops-repo"
-    CLUSTER_NAME: "nani-cluster"
+    CLUSTER_NAME: "dev-cluster"
     S3_BUCKET: "decsecops-bucket"
 
 phases:
