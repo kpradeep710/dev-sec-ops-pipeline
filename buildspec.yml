@@ -22,7 +22,7 @@ phases:
       - echo "Installing SonarQube Scanner..."
       - curl -o sonarqube-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip
       - unzip sonarqube-scanner.zip
-      - mv sonarqube-scanner /opt/sonarqube
+      - mv sonarqube-scanner/opt/sonarqube
       - echo "export PATH=/opt/sonarqube/bin:$PATH" >> ~/.bashrc
       - export PATH=/opt/sonarqube/bin:$PATH
       - sonar-scanner -v
