@@ -19,8 +19,9 @@ phases:
   pre_build:
     commands:
       - echo "Starting SonarQube container..."
-      - docker run -d --name sonarqube -p 9000:9000 sonarqube:10.6-community
-      - docker start sonarqube:10.6-community
+      - $CONTAINER_ID=docker run -d --name sonarqube -p 9000:9000 sonarqube:10.6-community
+      - docker ps
+      - docker start $CONTAINER_ID
       - echo "Waiting for SonarQube to be ready..."
       - echo "SonarQube is ready!"
       - echo "Installing SonarQube Scanner..."
