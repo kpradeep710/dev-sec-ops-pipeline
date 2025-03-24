@@ -14,6 +14,16 @@ phases:
       - docker login || true
       - echo "Pulling OWASP ZAP Docker image..."
       - docker pull owasp/zap || true
+      - echo "Installing Java 17..."
+      - sudo apt update
+      - sudo apt install -y openjdk-17-jdk
+      - echo "Installing SonarQube Scanner..."
+      - wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-10.6.zip
+      - unzip sonarqube-10.6.zip
+      - mv sonarqube-10.6/opt/sonar-scanner
+      - echo "export PATH=/opt/sonar-scanner/bin:$PATH" >> ~/.bashrc
+      - export PATH=/opt/sonar-scanner/bin:$PATH
+      - sonar-scanner -v
 
   pre_build:
     commands:
