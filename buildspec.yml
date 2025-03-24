@@ -11,9 +11,8 @@ phases:
       - docker login || true
       - echo "Pulling OWASP ZAP Docker image..."
       - docker pull owasp/zap || true
-      - echo "Installing Java 17..."
-      - apt update
-      - apt install -y openjdk-17-jdk
+      - echo "Installing Java ..."
+      - yum install java -y 
       - echo "Installing SonarQube Scanner..."
       - wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-10.6.zip
       - unzip sonarqube-10.6.zip
