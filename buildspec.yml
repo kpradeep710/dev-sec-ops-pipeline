@@ -28,7 +28,7 @@ phases:
       - unzip sonar-scanner-cli-5.0.1.3006-linux.zip
       - mv sonar-scanner-5.0.1.3006-linux /opt/sonar-scanner
       - export PATH="/opt/sonar-scanner/bin:$PATH"
-      - sonar-scanner -Dsonar.projectKey=nani-project -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -X
+      - sonar-scanner -Dsonar.projectKey=nani-project -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sqp_d3efec94601f51892322ffbfedbbbfc87c5688e8 -X
       - echo "SonarQube scan completed."
       - echo "Linting Dockerfile with Hadolint..."
       - hadolint Dockerfile || true
