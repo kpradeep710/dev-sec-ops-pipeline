@@ -21,7 +21,7 @@ phases:
 
       - echo "Installing SonarQube Scanner..."
       - wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-10.6.zip
-      - unzip sonarqube-10.6.zip
+      - tar -xvzf sonarqube-10.6.zip
       - mv sonarqube-10.6 /opt/sonarqube
       - echo "export PATH=/opt/sonarqube/bin:$PATH" >> ~/.bashrc
       - export PATH=/opt/sonarqube/bin:$PATH
