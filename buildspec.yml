@@ -1,11 +1,4 @@
 version: 0.2
-
-env:
-  variables:
-    SONAR_HOST_URL: "http://172.19.41.165:9000/"
-    SONAR_TOKEN: "squ_be3aeff8bfc16fe4c236c881557b775b28b2055a"
-    S3_BUCKET: "devsecops-bucket"
-
 phases:
   install:
     runtime-versions:
