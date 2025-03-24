@@ -1,22 +1,19 @@
 version: 0.2
 phases:
   install:
-    runtime-versions:
-      python: 3.8
     commands:
       - echo "Installing security tools..."
       - curl -Lo kubelinter.tar.gz https://github.com/stackrox/kube-linter/releases/latest/download/kube-linter-linux.tar.gz
       - tar -xzf kubelinter.tar.gz && mv kube-linter /usr/local/bin/
       - curl -L https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64 -o /usr/local/bin/hadolint
       - chmod +x /usr/local/bin/hadolint
-      - pip3 install awscli
       - curl -I https://ci-tools.anchore.io/quickstart.sh
       - docker login || true
       - echo "Pulling OWASP ZAP Docker image..."
       - docker pull owasp/zap || true
       - echo "Installing Java 17..."
-      - sudo apt update
-      - sudo apt install -y openjdk-17-jdk
+      - apt update
+      - apt install -y openjdk-17-jdk
       - echo "Installing SonarQube Scanner..."
       - wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-10.6.zip
       - unzip sonarqube-10.6.zip
