@@ -13,7 +13,7 @@ phases:
       - echo "Pulling SonarQube Docker image..."
       - docker pull sonarqube:10.6-community
       - echo "Pulling OWASP ZAP Docker image..."
-      - docker pull owasp/zap
+      - docker pull owasp/zap2docker-stable
 
   pre_build:
     commands:
