@@ -10,7 +10,10 @@ phases:
       - curl -I https://ci-tools.anchore.io/quickstart.sh
       - yum install -y docker
       - echo "Pulling SonarQube Docker image..."
+      - docker images
+      - docker rmi sonarqube:10.6-community
       - docker pull sonarqube:10.6-community
+      - docker images
       - echo "SonarQube image pulled successfully."
       - echo "Pulling OWASP ZAP Docker image..."
       - docker pull owasp/zap || true
