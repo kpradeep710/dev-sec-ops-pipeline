@@ -24,7 +24,7 @@ phases:
       - echo "Starting SonarQube container..."
       - docker run -d --name sonarqube -p 9000:9000 sonarqube:10.6-community
       - echo "Waiting for SonarQube to start..."
-      - curl -I http://localhost:9000; do echo "Waiting for SonarQube..."; sleep 10; done
+      - until curl -i http://localhost:9000; do echo "Waiting for SonarQube..."; sleep 10; done
       - echo "Running SonarQube SAST scan..."
       - sonar-scanner -Dsonar.projectKey=nani-project -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN
       - echo "SonarQube scan completed."
