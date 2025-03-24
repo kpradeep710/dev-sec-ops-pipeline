@@ -19,6 +19,8 @@ phases:
       - mkdir -p /opt/sonarqube 
       - mv sonar-scanner-*/* /opt/sonarqube/
       - ls -l /opt/sonarqube/
+      - export PATH=$PATH:/opt/sonarqube/bin  # Add SonarQube to PATH
+      - echo $PATH 
       - sonar-scanner -v
 
   pre_build:
