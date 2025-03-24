@@ -8,28 +8,15 @@ phases:
       - curl -L https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64 -o /usr/local/bin/hadolint
       - chmod +x /usr/local/bin/hadolint
       - curl -I https://ci-tools.anchore.io/quickstart.sh
-
-      - echo "Installing dependencies..."
-      - yum update -y
-      - yum install -y unzip wget java-11-openjdk docker aws-cli
-
-      - echo "Logging into Docker..."
       - docker login || true
-
       - echo "Pulling OWASP ZAP Docker image..."
-      - docker pull owasp/zap2docker-stable || true
-
+      - docker pull owasp/zap || true
+      - echo "Installing Java ..."
+      - yum install java -y 
       - echo "Installing SonarQube Scanner..."
       - curl -o sonarqube-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip
       - unzip sonarqube-scanner.zip
-      - mkdir /opt/sonarqube
-      - mv sonarqube-scanner/opt/sonarqube
-      - echo "export PATH=/opt/sonarqube/bin:$PATH" >> ~/.bashrc
-      - export PATH=/opt/sonarqube/bin:$PATH
       - sonar-scanner -v
-
-      - echo "Installing Anchore CLI..."
-      - pip3 install anchore-cli
 
   pre_build:
     commands:
@@ -50,7 +37,7 @@ phases:
     commands:
       - echo "Building Docker image..."
       - docker build -t dev-sec-ops-repo .
-      - docker tag dev-sec-ops-repo:latest $REPOSITORY_URI:latest
+      - docker tag dev-sec-ops-repo:latest 970547349158.dkr.ecr.ap-south-1.amazonaws.com/dev-sec-ops-repo:latest
       - echo "Docker image built successfully."
 
       - echo "Scanning Docker image with Anchore..."
@@ -66,7 +53,7 @@ phases:
   post_build:
     commands:
       - echo "Pushing Docker image to ECR..."
-      - docker push $REPOSITORY_URI:latest
+      - docker push 970547349158.dkr.ecr.ap-south-1.amazonaws.com/dev-sec-ops-repo:latest
       - echo "Docker image pushed successfully."
 
       - echo "Updating Kubernetes deployment..."
