@@ -20,6 +20,8 @@ phases:
     commands:
       - echo "Starting SonarQube container..."
       - docker run -d --name sonarqube -p 9000:9000 sonarqube:10.6-community
+      - docker stop 001c9f09e937bbb64fcc9699308cf9cc40c52f1545efbf9d72ada664b4427a41
+      - docker rm 001c9f09e937bbb64fcc9699308cf9cc40c52f1545efbf9d72ada664b4427a41
       - echo "Waiting for SonarQube to start..."
       - sleep 60  # Wait for SonarQube to fully start
       - curl -I http://localhost:9000 || (echo "SonarQube failed to start!" && exit 1)
