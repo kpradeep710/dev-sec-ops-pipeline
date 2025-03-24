@@ -12,8 +12,9 @@ phases:
       - curl -I https://ci-tools.anchore.io/quickstart.sh
       - echo "Pulling SonarQube Docker image..."
       - docker pull sonarqube:10.6-community
+      - docker login -u pradeep710 -p Nani@1999
       - echo "Pulling OWASP ZAP Docker image..."
-      - docker pull owasp/zap2docker-stable:latest
+      - docker pull zaproxy/zap-stable
 
   pre_build:
     commands:
