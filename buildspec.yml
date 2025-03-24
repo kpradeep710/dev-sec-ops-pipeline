@@ -8,18 +8,27 @@ phases:
       - curl -L https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64 -o /usr/local/bin/hadolint
       - chmod +x /usr/local/bin/hadolint
       - curl -I https://ci-tools.anchore.io/quickstart.sh
+
+      - echo "Installing dependencies..."
+      - yum update -y
+      - yum install -y unzip wget java-11-openjdk docker aws-cli
+
+      - echo "Logging into Docker..."
       - docker login || true
+
       - echo "Pulling OWASP ZAP Docker image..."
-      - docker pull owasp/zap || true
-      - echo "Installing Java ..."
-      - yum install java -y 
+      - docker pull owasp/zap2docker-stable || true
+
       - echo "Installing SonarQube Scanner..."
-      - curl -O https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-10.6.zip
-      - unzip -t sonarqube-10.6.zip
-      - mv sonarqube-10.6/opt/sonar-scanner
-      - echo "export PATH=/opt/sonar-scanner/bin:$PATH" >> ~/.bashrc
-      - export PATH=/opt/sonar-scanner/bin:$PATH
+      - wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-10.6.zip
+      - unzip sonarqube-10.6.zip
+      - mv sonarqube-10.6 /opt/sonarqube
+      - echo "export PATH=/opt/sonarqube/bin:$PATH" >> ~/.bashrc
+      - export PATH=/opt/sonarqube/bin:$PATH
       - sonar-scanner -v
+
+      - echo "Installing Anchore CLI..."
+      - pip3 install anchore-cli
 
   pre_build:
     commands:
@@ -40,7 +49,7 @@ phases:
     commands:
       - echo "Building Docker image..."
       - docker build -t dev-sec-ops-repo .
-      - docker tag dev-sec-ops-repo:latest 970547349158.dkr.ecr.ap-south-1.amazonaws.com/dev-sec-ops-repo:latest
+      - docker tag dev-sec-ops-repo:latest $REPOSITORY_URI:latest
       - echo "Docker image built successfully."
 
       - echo "Scanning Docker image with Anchore..."
@@ -56,7 +65,7 @@ phases:
   post_build:
     commands:
       - echo "Pushing Docker image to ECR..."
-      - docker push 970547349158.dkr.ecr.ap-south-1.amazonaws.com/dev-sec-ops-repo:latest
+      - docker push $REPOSITORY_URI:latest
       - echo "Docker image pushed successfully."
 
       - echo "Updating Kubernetes deployment..."
