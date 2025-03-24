@@ -4,9 +4,6 @@ env:
   variables:
     SONAR_HOST_URL: "http://172.19.41.165:9000/"
     SONAR_TOKEN: "squ_be3aeff8bfc16fe4c236c881557b775b28b2055a"
-    AWS_REGION: "ap-south-1"
-    REPOSITORY_URI: "970547349158.dkr.ecr.ap-south-1.amazonaws.com/dev-sec-ops-repo"
-    CLUSTER_NAME: "dev-cluster"
     S3_BUCKET: "decsecops-bucket"
 
 phases:
@@ -36,6 +33,7 @@ phases:
       - echo "Logging in to Amazon ECR..."
       - aws --version
       - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 970547349158.dkr.ecr.ap-south-1.amazonaws.com
+      - $REPOSITORY_URI=970547349158.dkr.ecr.ap-south-1.amazonaws.com/dev-sec-ops-repo
 
   build:
     commands:
@@ -57,18 +55,18 @@ phases:
   post_build:
     commands:
       - echo "Pushing Docker image to ECR..."
-      - docker push $REPOSITORY_URI:latest
+      - docker push 970547349158.dkr.ecr.ap-south-1.amazonaws.com/dev-sec-ops-repo:latest
       - echo "Docker image pushed successfully."
 
       - echo "Updating Kubernetes deployment..."
-      - aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
+      - aws eks update-kubeconfig --region ap-south-1 --name dev-cluster
       - sed -i "s|apache2|$REPOSITORY_URI:latest|g" deployment.yml
       - kubectl apply -f deployment.yml --validate=false
       - echo "Deployment successful!"
 
       - echo "Running OWASP ZAP DAST Scan..."
       - docker run --rm -v $(pwd):/zap/wrk:rw owasp/zap2docker-stable zap-baseline.py -t https://your-app-url.com -r zap-report.html || true
-      - aws s3 cp zap-report.html s3://$S3_BUCKET/
+      - aws s3 cp zap-report.html s3://decsecops-bucket/
       - echo "DAST scan completed and results uploaded to S3."
 
 artifacts:
