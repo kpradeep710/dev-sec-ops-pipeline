@@ -9,7 +9,6 @@ phases:
       - chmod +x /usr/local/bin/hadolint
       - curl -I https://ci-tools.anchore.io/quickstart.sh
       - yum install -y docker
-      - service docker start
       - echo "Pulling SonarQube Docker image..."
       - docker pull sonarqube:10.6-community
       - echo "SonarQube image pulled successfully."
