@@ -11,7 +11,7 @@ phases:
       - chmod +x /usr/local/bin/hadolint
       - pip3 install awscli
       - curl -I https://ci-tools.anchore.io/quickstart.sh
-      - docker pull owasp/zap2docker-stable
+      - docker pull owasp/zap2docker-stable || docker login && docker pull owasp/zap2docker-stable
 
   pre_build:
     commands:
