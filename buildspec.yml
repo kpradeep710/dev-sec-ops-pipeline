@@ -8,8 +8,6 @@ env:
 
 phases:
   install:
-    runtime-versions:
-      python: 3.8
     commands:
       - echo "Installing security tools..."
       - curl -Lo kubelinter.tar.gz https://github.com/stackrox/kube-linter/releases/latest/download/kube-linter-linux.tar.gz
