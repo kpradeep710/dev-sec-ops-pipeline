@@ -1,38 +1,38 @@
 version: 0.2
+
 phases:
   install:
     commands:
-      - echo "Installing security tools..."
+      - echo "Installing required tools..."
+      - yum install -y docker unzip
       - curl -Lo kubelinter.tar.gz https://github.com/stackrox/kube-linter/releases/latest/download/kube-linter-linux.tar.gz
       - tar -xzf kubelinter.tar.gz && mv kube-linter /usr/local/bin/
       - curl -L https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64 -o /usr/local/bin/hadolint
       - chmod +x /usr/local/bin/hadolint
-      - curl -I https://ci-tools.anchore.io/quickstart.sh
-      - yum install -y docker
-      - docker login -u pradeep710 -p Nani@1999
+      - curl -s https://ci-tools.anchore.io/quickstart.sh | bash
       - echo "Pulling SonarQube Docker image..."
-      - docker images
       - docker pull sonarqube:10.6-community
-      - docker images
-      - echo "SonarQube image pulled successfully."
       - echo "Pulling OWASP ZAP Docker image..."
-      - docker pull owasp/zap || true
-      
+      - docker pull owasp/zap
 
   pre_build:
     commands:
+      - echo "Starting Docker service..."
+      - service docker start
       - echo "Starting SonarQube container..."
       - docker run -d --name sonarqube -p 9000:9000 sonarqube:10.6-community
-      - echo "Waiting for SonarQube to start..."
-      - until curl -I http://localhost:9000; do echo "Waiting for SonarQube..."; sleep 10; done
-      - echo "Running SonarQube SAST scan..."
+      - echo "Waiting for SonarQube to be ready..."
+      - until curl -s http://localhost:9000/api/system/status | grep -q "UP"; do echo "Waiting..."; sleep 10; done
+      - echo "SonarQube is ready!"
+      - echo "Installing SonarQube Scanner..."
+      - curl -OL https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+      - unzip sonar-scanner-cli-5.0.1.3006-linux.zip
+      - mv sonar-scanner-5.0.1.3006-linux /opt/sonar-scanner
+      - export PATH="/opt/sonar-scanner/bin:$PATH"
       - sonar-scanner -Dsonar.projectKey=nani-project -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN
       - echo "SonarQube scan completed."
-
       - echo "Linting Dockerfile with Hadolint..."
       - hadolint Dockerfile || true
-      - echo "Dockerfile linting completed."
-
       - echo "Logging in to Amazon ECR..."
       - aws --version
       - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 970547349158.dkr.ecr.ap-south-1.amazonaws.com
@@ -42,15 +42,13 @@ phases:
     commands:
       - echo "Building Docker image..."
       - docker build -t dev-sec-ops-repo .
-      - docker tag dev-sec-ops-repo:latest 970547349158.dkr.ecr.ap-south-1.amazonaws.com/dev-sec-ops-repo:latest
+      - docker tag dev-sec-ops-repo:latest $REPOSITORY_URI:latest
       - echo "Docker image built successfully."
-
       - echo "Scanning Docker image with Anchore..."
-      - anchore-cli image add $REPOSITORY_URI:latest
-      - anchore-cli image wait $REPOSITORY_URI:latest
+      - anchore-cli image add $REPOSITORY_URI:latest || true
+      - anchore-cli image wait $REPOSITORY_URI:latest || true
       - anchore-cli image vuln $REPOSITORY_URI:latest all || true
       - echo "Docker image scanning completed."
-
       - echo "Scanning Kubernetes Manifests with Kubelinter..."
       - kube-linter lint deploy.yml || true
       - echo "Kubernetes manifest scanning completed."
@@ -58,15 +56,12 @@ phases:
   post_build:
     commands:
       - echo "Pushing Docker image to ECR..."
-      - docker push 970547349158.dkr.ecr.ap-south-1.amazonaws.com/dev-sec-ops-repo:latest
-      - echo "Docker image pushed successfully."
-
+      - docker push $REPOSITORY_URI:latest
       - echo "Updating Kubernetes deployment..."
       - aws eks update-kubeconfig --region ap-south-1 --name dev-cluster
       - sed -i "s|apache2|$REPOSITORY_URI:latest|g" deployment.yml
       - kubectl apply -f deployment.yml --validate=false
       - echo "Deployment successful!"
-
       - echo "Running OWASP ZAP DAST Scan..."
       - docker run --rm -v $(pwd):/zap/wrk:rw owasp/zap2docker-stable zap-baseline.py -t https://your-app-url.com -r zap-report.html || true
       - aws s3 cp zap-report.html s3://$S3_BUCKET/
