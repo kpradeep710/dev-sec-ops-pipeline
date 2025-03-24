@@ -16,6 +16,9 @@ phases:
       - echo "Installing SonarQube Scanner..."
       - curl -o sonarqube-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip
       - unzip sonarqube-scanner.zip
+      - mkdir -p /opt/sonarqube 
+      - mv sonar-scanner-*/* /opt/sonarqube/
+      - ls -l /opt/sonarqube/
       - sonar-scanner -v
 
   pre_build:
