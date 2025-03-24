@@ -8,7 +8,6 @@ phases:
       - curl -L https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64 -o /usr/local/bin/hadolint
       - chmod +x /usr/local/bin/hadolint
       - curl -I https://ci-tools.anchore.io/quickstart.sh
-      - amazon-linux-extras enable docker
       - yum install -y docker
       - service docker start
       - echo "Pulling SonarQube Docker image..."
