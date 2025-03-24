@@ -4,7 +4,7 @@ env:
   variables:
     SONAR_HOST_URL: "http://172.19.41.165:9000/"
     SONAR_TOKEN: "squ_be3aeff8bfc16fe4c236c881557b775b28b2055a"
-    S3_BUCKET: "decsecops-bucket "
+    S3_BUCKET: "devsecops-bucket"
 
 phases:
   install:
@@ -33,7 +33,7 @@ phases:
       - echo "Logging in to Amazon ECR..."
       - aws --version
       - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 970547349158.dkr.ecr.ap-south-1.amazonaws.com
-      - REPOSITORY_URI: 970547349158.dkr.ecr.ap-south-1.amazonaws.com/dev-sec-ops-repo
+      - REPOSITORY_URI=970547349158.dkr.ecr.ap-south-1.amazonaws.com/dev-sec-ops-repo
 
   build:
     commands:
@@ -60,7 +60,7 @@ phases:
 
       - echo "Updating Kubernetes deployment..."
       - aws eks update-kubeconfig --region ap-south-1 --name dev-cluster
-      - sed -i "s|nginx|$REPOSITORY_URI:latest|g" deployment.yml
+      - sed -i "s|apache2|$REPOSITORY_URI:latest|g" deployment.yml
       - kubectl apply -f deployment.yml --validate=false
       - echo "Deployment successful!"
 
