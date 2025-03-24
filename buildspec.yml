@@ -18,8 +18,6 @@ phases:
 
   pre_build:
     commands:
-      - echo "Starting Docker service..."
-      - service docker start
       - echo "Starting SonarQube container..."
       - docker run -d --name sonarqube -p 9000:9000 sonarqube:10.6-community
       - docker start sonarqube:10.6-community
