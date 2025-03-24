@@ -4,10 +4,12 @@ env:
   variables:
     SONAR_HOST_URL: "http://172.19.41.165:9000/"
     SONAR_TOKEN: "squ_be3aeff8bfc16fe4c236c881557b775b28b2055a"
-    S3_BUCKET: "decsecops-bucket"
+    S3_BUCKET: "decsecops-bucket "
 
 phases:
   install:
+    runtime-versions:
+      python: 3.8
     commands:
       - echo "Installing security tools..."
       - curl -Lo kubelinter.tar.gz https://github.com/stackrox/kube-linter/releases/latest/download/kube-linter-linux.tar.gz
@@ -25,18 +27,18 @@ phases:
       - echo "SonarQube scan completed."
 
       - echo "Linting Dockerfile with Hadolint..."
-      - hadolint dockerfile || true
+      - hadolint Dockerfile || true
       - echo "Dockerfile linting completed."
 
       - echo "Logging in to Amazon ECR..."
       - aws --version
-      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 970547349158.dkr.ecr.ap-south-1.amazonaws.com
-      - $REPOSITORY_URI=970547349158.dkr.ecr.ap-south-1.amazonaws.com/dev-sec-ops-repo
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPOSITORY_URI
+      - REPOSITORY_URI: 970547349158.dkr.ecr.ap-south-1.amazonaws.com/dev-sec-ops-repo
 
   build:
     commands:
       - echo "Building Docker image..."
-      - docker build -t dev-sec-ops .
+      - docker build -t dev-sec-ops-repo .
       - docker tag dev-sec-ops-repo:latest 970547349158.dkr.ecr.ap-south-1.amazonaws.com/dev-sec-ops-repo:latest
       - echo "Docker image built successfully."
 
@@ -47,7 +49,7 @@ phases:
       - echo "Docker image scanning completed."
 
       - echo "Scanning Kubernetes Manifests with Kubelinter..."
-      - kube-linter lint deployment.yml || true
+      - kube-linter lint deploy.yml || true
       - echo "Kubernetes manifest scanning completed."
 
   post_build:
@@ -58,17 +60,16 @@ phases:
 
       - echo "Updating Kubernetes deployment..."
       - aws eks update-kubeconfig --region ap-south-1 --name dev-cluster
-      - sed -i "s|apache2|$REPOSITORY_URI:latest|g" deployment.yml
+      - sed -i "s|nginx|$REPOSITORY_URI:latest|g" deployment.yml
       - kubectl apply -f deployment.yml --validate=false
       - echo "Deployment successful!"
 
       - echo "Running OWASP ZAP DAST Scan..."
       - docker run --rm -v $(pwd):/zap/wrk:rw owasp/zap2docker-stable zap-baseline.py -t https://your-app-url.com -r zap-report.html || true
-      - aws s3 cp zap-report.html s3://decsecops-bucket/
+      - aws s3 cp zap-report.html s3://$S3_BUCKET/
       - echo "DAST scan completed and results uploaded to S3."
 
 artifacts:
   files:
     - zap-report.html
     - imagedefinitions.json
-
