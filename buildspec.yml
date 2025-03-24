@@ -15,6 +15,7 @@ phases:
       - yum install java -y 
       - echo "Installing SonarQube Scanner..."
       - curl -O https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-10.6.zip
+      - yum install unzip -y
       - unzip sonarqube-10.6.zip
       - mv sonarqube-10.6/opt/sonar-scanner
       - echo "export PATH=/opt/sonar-scanner/bin:$PATH" >> ~/.bashrc
