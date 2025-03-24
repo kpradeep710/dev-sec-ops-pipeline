@@ -13,7 +13,7 @@ phases:
       - echo "Pulling SonarQube Docker image..."
       - docker pull sonarqube:10.6-community
       - echo "Pulling OWASP ZAP Docker image..."
-      - docker pull owasp/zap2docker-stable
+      - docker pull owasp/zap2docker-stable:latest
 
   pre_build:
     commands:
@@ -21,8 +21,8 @@ phases:
       - service docker start
       - echo "Starting SonarQube container..."
       - docker run -d --name sonarqube -p 9000:9000 sonarqube:10.6-community
+      - docker start sonarqube:10.6-community
       - echo "Waiting for SonarQube to be ready..."
-      - until curl -s http://localhost:9000; do echo "Waiting for SonarQube..."; sleep 10; done
       - echo "SonarQube is ready!"
       - echo "Installing SonarQube Scanner..."
       - curl -OL https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
