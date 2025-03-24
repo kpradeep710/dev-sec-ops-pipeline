@@ -20,9 +20,8 @@ phases:
       - docker pull owasp/zap2docker-stable || true
 
       - echo "Installing SonarQube Scanner..."
-      - rm -f sonarqube-10.6.zip
-      - curl -O https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-10.7.zip
-      - unzip sonarqube-10.7.zip
+      - curl -o sonarqube-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip
+      - unzip sonarqube-scanner.zip
       - mv sonarqube-10.6 /opt/sonarqube
       - echo "export PATH=/opt/sonarqube/bin:$PATH" >> ~/.bashrc
       - export PATH=/opt/sonarqube/bin:$PATH
