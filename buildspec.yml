@@ -11,7 +11,6 @@ phases:
       - yum install -y docker
       - echo "Pulling SonarQube Docker image..."
       - docker images
-      - docker rmi sonarqube:10.6-community
       - docker pull sonarqube:10.6-community
       - docker images
       - echo "SonarQube image pulled successfully."
