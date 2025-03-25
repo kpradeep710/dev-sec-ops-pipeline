@@ -4,7 +4,7 @@ phases:
   install:
     commands:
       - echo "Installing required tools..."
-      - yum install -y docker unzip
+      - yum install -y docker
       - curl -Lo kubelinter.tar.gz https://github.com/stackrox/kube-linter/releases/latest/download/kube-linter-linux.tar.gz
       - tar -xzf kubelinter.tar.gz && mv kube-linter /usr/local/bin/
       - curl -L https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64 -o /usr/local/bin/hadolint
