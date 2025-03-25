@@ -20,8 +20,6 @@ phases:
     commands:
       - echo "Starting SonarQube container..."
       - docker ps
-      - docker stop a24415c61bfc
-      - docker rm a24415c61bfc
       - docker run -d --name sonarqube -p 9000:9000 sonarqube:10.6-community
       - echo "Waiting for SonarQube to be ready..."
       - sleep 30
