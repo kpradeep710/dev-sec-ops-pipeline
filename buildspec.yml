@@ -7,8 +7,6 @@ phases:
       - yum install -y docker
       - curl -Lo kubelinter.tar.gz https://github.com/stackrox/kube-linter/releases/latest/download/kube-linter-linux.tar.gz
       - tar -xzf kubelinter.tar.gz && mv kube-linter /usr/local/bin/
-      - curl -L https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64 -o /usr/local/bin/hadolint
-      - chmod +x /usr/local/bin/hadolint
 
   pre_build:
     commands:
@@ -44,7 +42,7 @@ phases:
       - echo "PRE_BUILD will fail if dockerfile is not secure or linted"
       - echo using Hadolint for Dockerfile linting
       - docker pull hadolint/hadolint:v1.16.2
-      - docker run --rm -i -v $(PWD)/.hadolint.yaml:/.hadolint.yaml hadolint/hadolint:v1.16.2 hadolint -f json - < dockerfile
+      - docker run --rm -i hadolint/hadolint:v1.16.2 hadolint -f json - < Dockerfile
       - echo Docker FILE LINT STAGE - PASSED
       - echo "Building Docker image..."
       - docker build -t dev-sec-ops-repo .
