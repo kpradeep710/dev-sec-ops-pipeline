@@ -9,20 +9,19 @@ phases:
       - tar -xzf kubelinter.tar.gz && mv kube-linter /usr/local/bin/
       - curl -L https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64 -o /usr/local/bin/hadolint
       - chmod +x /usr/local/bin/hadolint
-      - curl -I https://ci-tools.anchore.io/quickstart.sh || true
+
+  pre_build:
+    commands:
       - echo "Pulling SonarQube Docker image..."
       - docker pull sonarqube:10.6-community
       - docker login -u pradeep710 -p Nani@1999 || echo "Docker login failed"
       - echo "Pulling OWASP ZAP Docker image..."
       - docker pull zaproxy/zap-stable || echo "ZAP image pull failed"
-
-  pre_build:
-    commands:
       - echo "Starting SonarQube container..."
       - docker ps
       - docker run -d --name sonarqube -p 9000:9000 sonarqube:10.6-community
+      - docker ps
       - echo "Waiting for SonarQube to be ready..."
-      - sleep 30
       - echo "Installing SonarQube Scanner..."
       - curl -OL https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
       - unzip sonar-scanner-cli-5.0.1.3006-linux.zip
@@ -38,22 +37,29 @@ phases:
       - REPOSITORY_URI=970547349158.dkr.ecr.ap-south-1.amazonaws.com/dev-sec-ops-repo
 
   build:
+    on-failure: ABORT
     commands:
+      - #LINTING THE DOCKERFILE USING HADOLINT
+      - echo "DOCKERFILE LINT STAGE"
+      - echo "PRE_BUILD will fail if dockerfile is not secure or linted"
+      - echo using Hadolint for Dockerfile linting
+      - docker pull hadolint/hadolint:v1.16.2
+      - docker run --rm -i -v $(PWD)/.hadolint.yaml:/.hadolint.yaml hadolint/hadolint:v1.16.2 hadolint -f json - < ./dockerfile
+      - echo Docker FILE LINT STAGE - PASSED
       - echo "Building Docker image..."
       - docker build -t dev-sec-ops-repo .
       - docker tag dev-sec-ops-repo:latest $REPOSITORY_URI:latest
       - echo "Docker image built successfully."
+      - echo "Pushing Docker image to ECR..."
+      - docker push 970547349158.dkr.ecr.ap-south-1.amazonaws.com/dev-sec-ops-repo:latest
       - echo "Scanning Docker image with Anchore..."
-      - anchore-cli image add $REPOSITORY_URI:latest || echo "Anchore image add failed"
-      - anchore-cli image wait $REPOSITORY_URI:latest || echo "Anchore image wait failed"
-      - anchore-cli image vuln $REPOSITORY_URI:latest all || echo "Anchore vulnerability scan failed"
+      - export COMPOSE_INTERACTIVE_NO_CLI-1
+      - curl -s https://ci-tools.anchore.io/inline_scan-v0.6.0 | bash -s -- -r $REPOSITORY_URI:latest
       - echo "Scanning Kubernetes Manifests with Kubelinter..."
       - kube-linter lint deployment.yml || echo "Kubelinter found issues"
 
   post_build:
     commands:
-      - echo "Pushing Docker image to ECR..."
-      - docker push 970547349158.dkr.ecr.ap-south-1.amazonaws.com/dev-sec-ops-repo:latest
       - echo "installing minikube...."
       - curl -LO https://github.com/kubernetes/minikube/releases/latest/download/minikube-linux-amd64
       - sudo install minikube-linux-amd64 /usr/local/bin/minikube && rm minikube-linux-amd64
