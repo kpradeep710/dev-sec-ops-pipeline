@@ -52,9 +52,8 @@ phases:
   post_build:
     commands:
       - echo "Pushing Docker image to ECR..."
-      - docker push $REPOSITORY_URI:latest
+      - docker push 970547349158.dkr.ecr.ap-south-1.amazonaws.com/dev-sec-ops-repo:latest
       - echo "Updating Kubernetes deployment..."
-      - aws eks update-kubeconfig --region ap-south-1 --name dev-cluster
       - sed -i "s|apache2|$REPOSITORY_URI:latest|g" deployment.yml
       - kubectl apply -f deployment.yml --validate=false
       - echo "Deployment successful!"
