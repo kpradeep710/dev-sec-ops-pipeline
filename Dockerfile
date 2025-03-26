@@ -5,9 +5,7 @@ FROM ubuntu:20.04
 WORKDIR /var/www/html
 
 # Install required packages
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    apache2=2.4.41-4ubuntu3.19 \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y Apache2 2.4.41 on Ubuntu 20.04
 
 # Copy website files
 COPY ./index.html /var/www/html
