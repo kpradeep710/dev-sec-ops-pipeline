@@ -13,8 +13,6 @@ phases:
       - echo "Pulling SonarQube Docker image..."
       - docker pull sonarqube:10.6-community
       - docker login -u pradeep710 -p Nani@1999 || echo "Docker login failed"
-      - echo "Pulling OWASP ZAP Docker image..."
-      - docker pull zaproxy/zap-stable:latest || echo "ZAP image pull failed"
       - echo "Starting SonarQube container..."
       - docker ps
       - docker run -d --name sonarqube -p 9000:9000 sonarqube:10.6-community
@@ -75,6 +73,8 @@ phases:
       - sed -i "s|apache2|$REPOSITORY_URI:latest|g" deployment.yml
       - kubectl apply -f deployment.yml --validate=false
       - echo "Deployment successful!"
+      - echo "Pulling OWASP ZAP Docker image..."
+      - docker pull zaproxy/zap-stable
       - echo "Running OWASP ZAP DAST Scan..."
       - docker run --rm -v $(pwd):/zap/wrk:rw zaproxy/zap-stable zap-baseline.py -t https://your-app-url.com -r zap-report.html || echo "ZAP scan failed"
       - if [ -f "zap-report.html" ]; then aws s3 cp zap-report.html s3://$S3_BUCKET/; else echo "ZAP report not found!"; exit 1; fi
