@@ -63,13 +63,12 @@ phases:
       - echo "installing kubectl..."
       - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
       - sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-      - kubectl version --client
       - echo "connecting to cluster..."
-      - sudo minikube start --driver=docker --force
+      - sudo minikube start --force
       - minikube status
       - kubectl get nodes -o wide
       - echo "Updating Kubernetes deployment..."
-      - sed -i "s|apache2|$REPOSITORY_URI:latest|g" deployment.yml
+      - sed -i "s|nginx|$REPOSITORY_URI:latest|g" deployment.yml
       - kubectl apply -f deployment.yml --validate=false
       - echo "Deployment successful!"
       - echo "Pulling OWASP ZAP Docker image..."
