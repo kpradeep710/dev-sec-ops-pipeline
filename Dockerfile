@@ -1,17 +1,20 @@
-# Use a specific Ubuntu version
-FROM ubuntu:20.04
+# Use the official NGINX image from Docker Hub
+FROM nginx:latest
 
-# Set the working directory
-WORKDIR /var/www/html
+# Update package list and clean up to reduce image size
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install required packages
-RUN apt-get update && apt-get install -y Apache2 2.4.41 on Ubuntu 20.04
+# Copy website files to the correct Nginx web root
+COPY --chown=nginx:nginx index.html /usr/share/nginx/html/
 
-# Copy website files
-COPY ./index.html /var/www/html
-
-# Expose port 80 for Apache
+# Expose port 80
 EXPOSE 80
 
-# Start Apache in the foreground
-CMD ["apachectl", "-D", "FOREGROUND"]
+# Use a non-root user for better security
+USER nginx
+
+# Start Nginx in the foreground
+CMD ["nginx", "-g", "daemon off;"]
