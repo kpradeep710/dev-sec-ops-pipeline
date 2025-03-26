@@ -42,7 +42,7 @@ phases:
       - echo "PRE_BUILD will fail if dockerfile is not secure or linted"
       - echo using Hadolint for Dockerfile linting
       - docker pull hadolint/hadolint:v1.16.2
-      - docker run --rm -i hadolint/hadolint:v1.16.2 hadolint -f json - < Dockerfile
+      - cat Dockerfile | docker run --rm -i hadolint/hadolint:v1.16.2 hadolint -f json -
       - echo Docker FILE LINT STAGE - PASSED
       - echo "Building Docker image..."
       - docker build -t dev-sec-ops-repo .
@@ -76,7 +76,7 @@ phases:
       - echo "Deployment successful!"
       - echo "Running OWASP ZAP DAST Scan..."
       - docker run --rm -v $(pwd):/zap/wrk:rw zaproxy/zap-stable zap-baseline.py -t https://your-app-url.com -r zap-report.html || echo "ZAP scan failed"
-      - aws s3 cp zap-report.html s3://$S3_BUCKET/
+      - if [ -f "zap-report.html" ]; then aws s3 cp zap-report.html s3://$S3_BUCKET/; else echo "ZAP report not found!"; exit 1; fi
       - echo "DAST scan completed and results uploaded to S3."
 
 artifacts:
