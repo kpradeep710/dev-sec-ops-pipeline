@@ -64,7 +64,7 @@ phases:
       - echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
       - sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
       - echo "connecting to cluster..."
-      - minikube start --cpus=2 --memory=4096 --disk-size=20g --force
+      - minikube start --driver=none --force
       - minikube status
       - kubectl get nodes -o wide
       - echo "Updating Kubernetes deployment..."
