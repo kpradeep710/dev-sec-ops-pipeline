@@ -10,9 +10,9 @@ phases:
 
   pre_build:
     commands:
+      - docker login -u pradeep710 -p Nani@1999 
       - echo "Pulling SonarQube Docker image..."
       - docker pull sonarqube:10.6-community
-      - docker login -u pradeep710 -p Nani@1999 || echo "Docker login failed"
       - echo "Starting SonarQube container..."
       - docker ps
       - docker run -d --name sonarqube -p 9000:9000 sonarqube:10.6-community
