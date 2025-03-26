@@ -7,7 +7,6 @@ WORKDIR /var/www/html
 # Install required packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
     apache2=2.4.41-4ubuntu3.19 \
-    curl=7.68.0-1ubuntu2.18 \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy website files
