@@ -14,7 +14,7 @@ phases:
       - docker pull sonarqube:10.6-community
       - docker login -u pradeep710 -p Nani@1999 || echo "Docker login failed"
       - echo "Pulling OWASP ZAP Docker image..."
-      - docker pull zaproxy/zap-stable || echo "ZAP image pull failed"
+      - docker pull zaproxy/zap-stable:latest || echo "ZAP image pull failed"
       - echo "Starting SonarQube container..."
       - docker ps
       - docker run -d --name sonarqube -p 9000:9000 sonarqube:10.6-community
