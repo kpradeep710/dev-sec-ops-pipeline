@@ -41,8 +41,9 @@ phases:
       - echo "DOCKERFILE LINT STAGE"
       - echo "PRE_BUILD will fail if dockerfile is not secure or linted"
       - echo using Hadolint for Dockerfile linting
-      - docker pull hadolint/hadolint:v1.16.2
-      - cat Dockerfile | docker run --rm -i hadolint/hadolint:v1.16.2 hadolint -f json -
+      - docker pull hadolint/hadolint:latest
+      - docker run --rm -i hadolint/hadolint:v1.16.2 hadolint -f json < Dockerfile
+      - hadolint Dockerfile
       - echo Docker FILE LINT STAGE - PASSED
       - echo "Building Docker image..."
       - docker build -t dev-sec-ops-repo .
