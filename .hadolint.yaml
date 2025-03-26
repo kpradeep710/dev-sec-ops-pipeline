@@ -1,3 +1,0 @@
-ignored:
-  - DL3008  # Ignore pinning apt package versions
-  - DL3013  # Ignore using `apt-get upgrade`
