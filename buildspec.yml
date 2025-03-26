@@ -40,6 +40,7 @@ phases:
       - echo "PRE_BUILD will fail if dockerfile is not secure or linted"
       - echo using Hadolint for Dockerfile linting
       - docker pull hadolint/hadolint
+      - docker images
       - docker run --rm -i hadolint/hadolint hadolint -f json - < Dockerfile
       - hadolint Docker file
       - echo Docker FILE LINT STAGE - PASSED
