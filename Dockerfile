@@ -3,7 +3,7 @@ FROM ubuntu:latest
 WORKDIR /var/www/html
 
 # Install Apache
-RUN apt update && apt install -y apache2
+RUN apt-get update && apt-get install -y apache2
 
 # Copy website files
 COPY ./index.html /var/www/html
