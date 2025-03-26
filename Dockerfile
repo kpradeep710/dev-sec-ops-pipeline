@@ -1,5 +1,5 @@
 # Use the official NGINX image from Docker Hub
-FROM nginx:latest
+FROM nginx:1.26.3
 
 # Update package list and clean up to reduce image size
 RUN apt-get update \
@@ -8,13 +8,10 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy website files to the correct Nginx web root
-COPY --chown=nginx:nginx index.html /usr/share/nginx/html/
+COPY index.html /usr/share/nginx/html/
 
 # Expose port 80
 EXPOSE 80
-
-# Use a non-root user for better security
-USER nginx
 
 # Start Nginx in the foreground
 CMD ["nginx", "-g", "daemon off;"]
