@@ -42,7 +42,6 @@ phases:
       - docker pull hadolint/hadolint
       - docker images
       - docker run --rm -i hadolint/hadolint hadolint -f json - < Dockerfile
-      - hadolint Dockerfile
       - echo Docker FILE LINT STAGE - PASSED
       - echo "Building Docker image..."
       - docker build -t dev-sec-ops-repo .
