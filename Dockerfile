@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM ubuntu:20.4
 
 WORKDIR /var/www/html
 
