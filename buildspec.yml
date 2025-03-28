@@ -1,78 +1,98 @@
 version: 0.2
 
-env:
-  variables:
-    SONAR_HOST_URL: "http://172.19.41.165:9000/"
-    SONAR_TOKEN: "squ_be3aeff8bfc16fe4c236c881557b775b28b2055a"
-    AWS_REGION: "ap-south-1"
-    REPOSITORY_URI: "970547349158.dkr.ecr.ap-south-1.amazonaws.com/dev-sec-ops-repo"
-    CLUSTER_NAME: "nani-cluster"
-    S3_BUCKET: "decsecops-bucket"
-
 phases:
   install:
-    runtime-versions:
-      docker: latest
     commands:
-      - echo "Installing security tools..."
-      - curl -Lo kubelinter.tar.gz https://github.com/stackrox/kube-linter/releases/latest/download/kube-linter-linux.tar.gz
-      - tar -xzf kubelinter.tar.gz && mv kube-linter /usr/local/bin/
-      - curl -L https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64 -o /usr/local/bin/hadolint
-      - chmod +x /usr/local/bin/hadolint
-      - pip3 install awscli
-      - curl -s https://ci-tools.anchore.io/quickstart.sh | bash -s -- -a
-      - docker pull owasp/zap2docker-stable
-
+      - echo "Installing necessary tools"
+      - curl -Lo /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64 && chmod +x /usr/local/bin/hadolint
+      - curl -Lo /usr/local/bin/kubelinter https://github.com/stackrox/kube-linter/releases/latest/download/kube-linter-linux && chmod +x /usr/local/bin/kubelinter
+      - curl -sSL https://github.com/anchore/anchore-cli/releases/latest/download/anchore-cli-linux -o /usr/local/bin/anchore-cli && chmod +x /usr/local/bin/anchore-cli
+      - curl -sSL https://raw.githubusercontent.com/zaproxy/zaproxy/main/scripts/zap.sh -o /usr/local/bin/zap && chmod +x /usr/local/bin/zap
+      - yum install docker -y
+      - yum install -y maven
+      - yum install java-17 -y
   pre_build:
     commands:
-      - echo "Running SonarQube SAST scan..."
-      - sonar-scanner -Dsonar.projectKey=nani-project -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN
-      - echo "SonarQube scan completed."
-
+      - docker login -u pradeep710 -p Nani@1999 
+      - echo "Pulling SonarQube Docker image..."
+      - docker pull sonarqube:10.6-community
+      - echo "Starting SonarQube container..."
+      - docker ps
+      - docker run -d --name sonarqube -p 9000:9000 sonarqube:10.6-community
+      - docker ps
+      - echo "Waiting for SonarQube to be ready..."
+      - echo "Installing SonarQube Scanner..."
+      - curl -OL https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+      - unzip sonar-scanner-cli-5.0.1.3006-linux.zip
+      - mv sonar-scanner-5.0.1.3006-linux /opt/sonar-scanner
+      - export PATH="/opt/sonar-scanner/bin:$PATH"
+      - echo "Running SonarQube scan..."
+      - mvn sonar-scanner -Dsonar.projectKey=nani-project -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -X || echo "SonarQube scan failed"
+      - mvn clean compile
+      - curl -I http://localhost:9000
       - echo "Linting Dockerfile with Hadolint..."
-      - hadolint dockerfile || true
-      - echo "Dockerfile linting completed."
-
+      - hadolint Dockerfile || echo "Hadolint found issues"
       - echo "Logging in to Amazon ECR..."
       - aws --version
       - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 970547349158.dkr.ecr.ap-south-1.amazonaws.com
+      - REPOSITORY_URI=970547349158.dkr.ecr.ap-south-1.amazonaws.com/dev-sec-ops-repo
 
   build:
+    on-failure: ABORT
     commands:
-      - echo "Building Docker image..."
-      - docker build -t dev-sec-ops .
-      - docker tag dev-sec-ops-repo:latest 970547349158.dkr.ecr.ap-south-1.amazonaws.com/dev-sec-ops-repo:latest
+      - echo "Running Hadolint on Dockerfile"
+      - hadolint Dockerfile    
+      - docker build -t dev-sec-ops-repo .
+      - docker tag dev-sec-ops-repo:latest $REPOSITORY_URI:latest
       - echo "Docker image built successfully."
-
-      - echo "Scanning Docker image with Anchore..."
-      - anchore-cli image add $REPOSITORY_URI:latest
-      - anchore-cli image wait $REPOSITORY_URI:latest
-      - anchore-cli image vuln $REPOSITORY_URI:latest all || true
-      - echo "Docker image scanning completed."
-
-      - echo "Scanning Kubernetes Manifests with Kubelinter..."
-      - kube-linter lint deployment.yml || true
-      - echo "Kubernetes manifest scanning completed."
+      - echo "Pushing Docker image to ECR..."
+      - docker push 970547349158.dkr.ecr.ap-south-1.amazonaws.com/dev-sec-ops-repo:latest
+      - echo "Running Anchore Engine for image scanning"
+      - anchore-cli image add dev-sec-ops-repo:latest
+      - anchore-cli image wait dev-sec-ops-repo:latest
+      - anchore-cli image vuln dev-sec-ops-repo:latest all > anchore-results.json
+      - echo "Saving Anchore scan results to S3"
+      - aws s3 cp anchore-results.json s3://$S3_BUCKET_NAME/anchore-results.json
 
   post_build:
     commands:
-      - echo "Pushing Docker image to ECR..."
-      - docker push $REPOSITORY_URI:latest
-      - echo "Docker image pushed successfully."
-
+      - echo "installing minikube..."
+      - curl -LO https://github.com/kubernetes/minikube/releases/latest/download/minikube-linux-amd64
+      - sudo install minikube-linux-amd64 /usr/local/bin/minikube && rm minikube-linux-amd64
+      
+      - echo "deleting minikube"
+      - minikube delete
+      
+      - echo "again installing minikube..."
+      - curl -LO https://github.com/kubernetes/minikube/releases/latest/download/minikube-linux-amd64
+      - sudo install minikube-linux-amd64 /usr/local/bin/minikube && rm minikube-linux-amd64
+      
+      - echo "installing kubectl..."
+      - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+      - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+      - echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+      - sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+      - echo "connecting to cluster..."
+      - minikube start --driver=docker --force
+      - minikube status
+      - kubectl get nodes -o wide
       - echo "Updating Kubernetes deployment..."
-      - aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
-      - sed -i "s|apache2|$REPOSITORY_URI:latest|g" deployment.yml
+      - sed -i "s|nginx|$REPOSITORY_URI:latest|g" deployment.yml
       - kubectl apply -f deployment.yml --validate=false
       - echo "Deployment successful!"
-
-      - echo "Running OWASP ZAP DAST Scan..."
-      - docker run --rm -v $(pwd):/zap/wrk:rw owasp/zap2docker-stable zap-baseline.py -t https://your-app-url.com -r zap-report.html || true
-      - aws s3 cp zap-report.html s3://$S3_BUCKET/
-      - echo "DAST scan completed and results uploaded to S3."
+      - echo "Running Kubelinter on Kubernetes manifests"
+      - kubelinter lint ./k8s --format json > kubelinter-results.json
+      - echo "Saving Kubelinter results to S3"
+      - aws s3 cp kubelinter-results.json s3://$S3_BUCKET_NAME/kubelinter-results.json
+       - echo "Running OWASP ZAP for DAST"
+      - zap -daemon -quickurl $TARGET_URL -quickout zap-results.json
+      - echo "Saving OWASP ZAP results to S3"
+      - aws s3 cp zap-results.json s3://$S3_BUCKET_NAME/zap-results.json
 
 artifacts:
   files:
-    - zap-report.html
-    - imagedefinitions.json
-
+    - kubelinter-results.json
+    - anchore-results.json
+    - zap-results.json
+ 
+   
