@@ -6,7 +6,7 @@ phases:
       - echo "Installing necessary tools"
       - curl -Lo /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64 && chmod +x /usr/local/bin/hadolint
       - curl -Lo /usr/local/bin/kubelinter https://github.com/stackrox/kube-linter/releases/latest/download/kube-linter-linux && chmod +x /usr/local/bin/kubelinter
-      - curl -sSL https://raw.githubusercontent.com/anchore/anchore-engine/main/scripts/install.sh
+      - curl -sSL https://github.com/anchore/anchore-cli/releases/latest/download/anchore-cli-linux -o /usr/local/bin/anchore-cli && chmod +x /usr/local/bin/anchore-cli
       - curl -sSL https://raw.githubusercontent.com/zaproxy/zaproxy/main/scripts/zap.sh -o /usr/local/bin/zap && chmod +x /usr/local/bin/zap
       - yum install docker -y
       - yum install -y maven
@@ -23,7 +23,7 @@ phases:
       - echo "Installing SonarQube Scanner..."
       - curl -OL https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
       - unzip sonar-scanner-cli-5.0.1.3006-linux.zip
-      - sonar-scanner-5.0.1.3006-linux /opt/sonar-scanner
+      - mv sonar-scanner-5.0.1.3006-linux /opt/sonar-scanner
       - export PATH="/opt/sonar-scanner/bin:$PATH"
       - echo "Running SonarQube scan..."
       - mvn sonar-scanner -Dsonar.projectKey=nani-project -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -X || echo "SonarQube scan failed"
