@@ -63,8 +63,8 @@ phases:
       - sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
       - whoami
       - docker --version
-      - minikube profile list
       - minikube start --force
+      - minikube profile list
       - kubectl cluster-info
       - minikube status
       - kubectl get nodes -o wide
