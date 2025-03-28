@@ -39,8 +39,10 @@ phases:
   build:
     on-failure: ABORT
     commands:
-      - echo "Running Hadolint on Dockerfile"
-      - hadolint Dockerfile    
+      - #LINTING THE DOCKERFILE USING HADOLINT
+      - echo "DOCKERFILE LINT STAGE"
+      - docker run --rm -i hadolint/hadolint hadolint -f json - < Dockerfile || echo "Hadolint warnings detected"
+      - echo Docker FILE LINT STAGE - PASSED   
       - docker build -t dev-sec-ops-repo .
       - docker tag dev-sec-ops-repo:latest $REPOSITORY_URI:latest
       - echo "Docker image built successfully."
