@@ -2,7 +2,7 @@
 FROM nginx:1.26.3
 
 # Install curl with a pinned version and clean up properly
-RUN apt-get update && apt-get install -y --no-install-recommends curl=7.68.0-1ubuntu2.14 \
+RUN apt-get update && apt-get install -y --no-install-recommends curl ubuntu2.14 \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy website files to the Nginx web root
