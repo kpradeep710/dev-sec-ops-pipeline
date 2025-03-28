@@ -4,8 +4,8 @@ phases:
   install:
     commands:
      - echo "Installing necessary tools"
-      - apt-get update -y
-      - apt-get install -y unzip curl jq
+      - yum update -y
+      - yum install -y unzip curl jq
       - curl -Lo /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64 && chmod +x /usr/local/bin/hadolint
       - curl -Lo /usr/local/bin/kubelinter https://github.com/stackrox/kube-linter/releases/latest/download/kube-linter-linux && chmod +x /usr/local/bin/kubelinter
       - curl -sSL https://raw.githubusercontent.com/anchore/anchore-engine/main/scripts/install.sh | bash
