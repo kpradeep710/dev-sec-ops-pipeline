@@ -9,6 +9,8 @@ phases:
       - curl -sSL https://github.com/anchore/anchore-cli/releases/latest/download/anchore-cli-linux -o /usr/local/bin/anchore-cli && chmod +x /usr/local/bin/anchore-cli
       - curl -sSL https://raw.githubusercontent.com/zaproxy/zaproxy/main/scripts/zap.sh -o /usr/local/bin/zap && chmod +x /usr/local/bin/zap
       - yum install docker -y
+       - sudo usermod -aG docker pradeep710
+       - newgrp docker
       - yum install -y maven
       - yum install java-17 -y
   pre_build:
@@ -63,8 +65,10 @@ phases:
       - sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
       - whoami
       - docker --version
-      - echo "connecting to cluster..."
-      - minikube start --driver=docker --force
+      - echo "Starting Minikube as non-root user..."
+      - minikube start --driver=docker --cpus=2 --memory=2200mb --disk-size=10g
+      - kubectl config use-context minikube
+      - kubectl cluster-info
       - minikube status
       - kubectl get nodes -o wide
       - echo "Updating Kubernetes deployment..."
