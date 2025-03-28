@@ -9,6 +9,7 @@ phases:
       - curl -sSL https://raw.githubusercontent.com/anchore/anchore-engine/main/scripts/install.sh
       - curl -sSL https://raw.githubusercontent.com/zaproxy/zaproxy/main/scripts/zap.sh -o /usr/local/bin/zap && chmod +x /usr/local/bin/zap
       - yum install docker -y
+      - yum install -y maven
   pre_build:
     commands:
       - docker login -u pradeep710 -p Nani@1999 
@@ -22,10 +23,11 @@ phases:
       - echo "Installing SonarQube Scanner..."
       - curl -OL https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
       - unzip sonar-scanner-cli-5.0.1.3006-linux.zip
-      - mvn sonar-scanner-5.0.1.3006-linux /opt/sonar-scanner
+      - sonar-scanner-5.0.1.3006-linux /opt/sonar-scanner
       - export PATH="/opt/sonar-scanner/bin:$PATH"
       - echo "Running SonarQube scan..."
-      - sonar-scanner -Dsonar.projectKey=nani-project -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -X || echo "SonarQube scan failed"
+      - mvn sonar-scanner -Dsonar.projectKey=nani-project -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -X || echo "SonarQube scan failed"
+      - curl -I $SONARQUBE_URL
       - echo "Linting Dockerfile with Hadolint..."
       - hadolint Dockerfile || echo "Hadolint found issues"
       - echo "Logging in to Amazon ECR..."
