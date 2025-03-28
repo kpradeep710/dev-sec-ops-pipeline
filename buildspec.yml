@@ -9,8 +9,8 @@ phases:
       - curl -sSL https://github.com/anchore/anchore-cli/releases/latest/download/anchore-cli-linux -o /usr/local/bin/anchore-cli && chmod +x /usr/local/bin/anchore-cli
       - curl -sSL https://raw.githubusercontent.com/zaproxy/zaproxy/main/scripts/zap.sh -o /usr/local/bin/zap && chmod +x /usr/local/bin/zap
       - yum install docker -y
-       - sudo usermod -aG docker pradeep710
-       - newgrp docker
+      - sudo usermod -aG docker pradeep710
+      - newgrp docker
       - yum install -y maven
       - yum install java-17 -y
   pre_build:
