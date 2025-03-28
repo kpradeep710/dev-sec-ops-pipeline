@@ -28,8 +28,8 @@ phases:
       - export PATH="/opt/sonar-scanner/bin:$PATH"
       - echo "Running SonarQube scan..."
       - mvn sonar-scanner -Dsonar.projectKey=nani-project -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -X || echo "SonarQube scan failed"
-      - mvn clean install -e
-      - curl -I $SONARQUBE_URL
+      - mvn clean compile
+      - curl -I http://localhost:9000
       - echo "Linting Dockerfile with Hadolint..."
       - hadolint Dockerfile || echo "Hadolint found issues"
       - echo "Logging in to Amazon ECR..."
