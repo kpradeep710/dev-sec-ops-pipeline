@@ -49,9 +49,9 @@ phases:
       - echo "Pushing Docker image to ECR..."
       - docker push 970547349158.dkr.ecr.ap-south-1.amazonaws.com/dev-sec-ops-repo:latest
       - echo "Running Anchore Engine for image scanning"
-      - anchore-cli image add dev-sec-ops-repo:latest
-      - anchore-cli image wait dev-sec-ops-repo:latest
-      - anchore-cli image vuln dev-sec-ops-repo:latest all > anchore-results.json
+      - anchore-cli image add 970547349158.dkr.ecr.ap-south-1.amazonaws.com/dev-sec-ops-repo:latest
+      - anchore-cli image wait 970547349158.dkr.ecr.ap-south-1.amazonaws.com/dev-sec-ops-repo:latest
+      - anchore-cli image vuln 970547349158.dkr.ecr.ap-south-1.amazonaws.com/dev-sec-ops-repo:latest all > anchore-results.json
       - echo "Saving Anchore scan results to S3"
       - aws s3 cp anchore-results.json s3://$S3_BUCKET_NAME/anchore-results.json
 
