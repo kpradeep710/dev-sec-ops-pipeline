@@ -10,6 +10,7 @@ phases:
       - curl -sSL https://raw.githubusercontent.com/zaproxy/zaproxy/main/scripts/zap.sh -o /usr/local/bin/zap && chmod +x /usr/local/bin/zap
       - yum install docker -y
       - yum install -y maven
+      - yum install java-17 -y
   pre_build:
     commands:
       - docker login -u pradeep710 -p Nani@1999 
@@ -27,6 +28,7 @@ phases:
       - export PATH="/opt/sonar-scanner/bin:$PATH"
       - echo "Running SonarQube scan..."
       - mvn sonar-scanner -Dsonar.projectKey=nani-project -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -X || echo "SonarQube scan failed"
+      - mvn clean install -e
       - curl -I $SONARQUBE_URL
       - echo "Linting Dockerfile with Hadolint..."
       - hadolint Dockerfile || echo "Hadolint found issues"
