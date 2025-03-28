@@ -64,7 +64,7 @@ phases:
       - sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
       - whoami
       - docker --version
-      - minikube start --driver=docker --force
+      - minikube start --driver=docker --cpus=4 --memory=4000mb --disk-size=10g
       - kubectl cluster-info
       - minikube status
       - kubectl get nodes -o wide
