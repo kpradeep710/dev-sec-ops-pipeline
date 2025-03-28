@@ -3,8 +3,9 @@ version: 0.2
 phases:
   install:
     commands:
-      - sudo yum install url -y
-      - sudo yum install bash -y
+      - yum update -y
+      - yum install url -y
+      - yum install bash -y
       - echo "Installing necessary tools"
       - curl -Lo /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64 && chmod +x /usr/local/bin/hadolint
       - curl -Lo /usr/local/bin/kubelinter https://github.com/stackrox/kube-linter/releases/latest/download/kube-linter-linux && chmod +x /usr/local/bin/kubelinter
