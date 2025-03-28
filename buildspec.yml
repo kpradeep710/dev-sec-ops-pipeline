@@ -13,7 +13,6 @@ phases:
       - yum install java-17 -y
   pre_build:
     commands:
-      - usermod -aG docker pradeep
       - docker login -u pradeep710 -p Nani@1999 
       - echo "Pulling SonarQube Docker image..."
       - docker pull sonarqube:10.6-community
