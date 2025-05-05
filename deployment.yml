@@ -1,4 +1,4 @@
-apiVersion: apps/v1`:wq
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: devsecops-deploy
@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: nani-container
-          image: apache2
+          image: nginx
           ports:
             - containerPort: 80
 ---
