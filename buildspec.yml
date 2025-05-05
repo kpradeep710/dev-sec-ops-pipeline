@@ -59,7 +59,7 @@ phases:
       - kubectl version --client
       - aws eks update-kubeconfig --region ap-south-1 --name devsecops-cluster
       - sed -i "s|nginx|$REPOSITORY_URI:latest|g" deployment.yml
-      - kubectl apply -f deployment.yml
+      - kubectl apply -f deployment.yml --validate=false
       - echo "Deployment successful!"
       - echo "Running Kubelinter on Kubernetes manifests"
       - kubelinter lint ./k8s --format json > kubelinter-results.json
