@@ -27,7 +27,7 @@ phases:
       - mv sonar-scanner-5.0.1.3006-linux /opt/sonar-scanner
       - export PATH="/opt/sonar-scanner/bin:$PATH"
       - echo "Running SonarQube scan..."
-      - mvn sonar:scanner -Dsonar.projectKey=nani-project -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -X || echo "SonarQube scan failed"
+      - sonar-scanner -Dsonar.projectKey=nani-project -Dsonar.sources=. -Dsonar.host.url=http://13.126.250.156:9000/ -Dsonar.login=$SONAR_TOKEN -X || echo "SonarQube scan failed"
       - mvn clean compile
       - echo "Linting Dockerfile with Hadolint..."
       - hadolint Dockerfile || echo "Hadolint found issues"
