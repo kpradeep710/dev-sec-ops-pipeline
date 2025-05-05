@@ -44,7 +44,7 @@ phases:
       - docker run --rm -i hadolint/hadolint hadolint -f json - < Dockerfile || echo "Hadolint warnings detected"
       - echo Docker FILE LINT STAGE - PASSED   
       - docker build -t dev-sec-ops-repo .
-      - docker tag dev-sec-ops-repo:latest $REPOSITORY_URI:latest
+      - docker tag dev-sec-ops-repo:latest 970547349158.dkr.ecr.ap-south-1.amazonaws.com/dev-sec-ops-repo:latest
       - echo "Docker image built successfully."
       - echo "Pushing Docker image to ECR..."
       - docker push 970547349158.dkr.ecr.ap-south-1.amazonaws.com/dev-sec-ops-repo:latest
@@ -54,21 +54,11 @@ phases:
 
   post_build:
     commands:
-      - echo "installing minikube..."
-      - curl -LO https://github.com/kubernetes/minikube/releases/latest/download/minikube-linux-amd64 && sudo install minikube-linux-amd64 /usr/local/bin/minikube && rm minikube-linux-amd64
-      - echo "installing kubectl..."
-      - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-      - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
-      - echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+      - curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.30.7/2024-12-12/bin/linux/amd64/kubectl
       - sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-      - whoami
-      - docker --version
-      - minikube start --force
-      - minikube profile list
-      - kubectl cluster-info
-      - minikube status
-      - kubectl get nodes -o wide
-      - echo "Updating Kubernetes deployment..."
+      - kubectl version --client
+      - aws eks update-kubeconfig --region ap-south-1 --name devsecops-cluster
+      - kubectl get nodes
       - sed -i "s|nginx|$REPOSITORY_URI:latest|g" deployment.yml
       - kubectl apply -f deployment.yml --validate=false
       - echo "Deployment successful!"
